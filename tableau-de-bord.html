@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5faf9">
+    <meta name="description" content="Votre espace de démonstration ProxiService.">
+    <title>Mon espace — ProxiService</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/auth.js" defer></script>
+  </head>
+  <body data-page="dashboard">
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    <header class="site-header">
+      <div class="container header-inner dashboard-header">
+        <a class="brand" href="index.html" aria-label="ProxiService, accueil">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none">
+              <path d="M20 3.5 36.5 13v14L20 36.5 3.5 27V13L20 3.5Z" fill="currentColor"/>
+              <path d="M20 12.5c-4.1 0-7.5 3.1-7.5 7.1 0 5.2 7.5 11 7.5 11s7.5-5.8 7.5-11c0-4-3.4-7.1-7.5-7.1Z" fill="#fff"/>
+              <circle cx="20" cy="19.5" r="2.5" fill="#15B9A6"/>
+            </svg>
+          </span>
+          <span class="brand-name">proxi<span>service</span></span>
+        </a>
+        <nav class="dashboard-nav" aria-label="Navigation du compte">
+          <a class="nav-link" href="index.html">Retour au site</a>
+          <button class="button button--logout" id="logout-button" type="button">Déconnexion</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="dashboard-main" id="contenu">
+      <div class="container">
+        <div class="demo-notice dashboard-notice" role="note">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5m0-8h.01"/></svg>
+          <p><strong>Espace de démonstration :</strong> vos informations et actions restent dans le stockage local de ce navigateur. Ce tableau de bord n'est relié à aucun serveur ni à une authentification sécurisée.</p>
+        </div>
+
+        <section class="dashboard-welcome" aria-labelledby="dashboard-title">
+          <div>
+            <p class="eyebrow" id="dashboard-eyebrow">Votre espace ProxiService</p>
+            <h1 id="dashboard-title">Bonjour !</h1>
+            <p id="dashboard-subtitle">Gérez votre activité locale depuis votre espace.</p>
+          </div>
+          <span class="role-badge" id="dashboard-role"></span>
+        </section>
+
+        <section class="dashboard-profile" aria-label="Votre profil">
+          <div class="profile-avatar" id="profile-avatar" aria-hidden="true">PS</div>
+          <div class="profile-summary">
+            <strong id="profile-name"></strong>
+            <span id="profile-detail"></span>
+          </div>
+          <span class="profile-city" id="profile-city"></span>
+        </section>
+
+        <section class="dashboard-panel" id="client-dashboard" hidden>
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="eyebrow">Côté client</p>
+              <h2>Mes demandes de services</h2>
+            </div>
+            <span class="count-badge" id="client-request-count">0 demande</span>
+          </div>
+
+          <form class="dashboard-form" id="request-form">
+            <h3>Décrire un nouveau besoin</h3>
+            <div class="form-grid">
+              <label class="form-field">
+                <span>Service recherché</span>
+                <input name="trade" type="text" maxlength="80" placeholder="Ex. Plomberie" required>
+              </label>
+              <label class="form-field">
+                <span>Ville / quartier</span>
+                <input name="city" type="text" maxlength="100" value="Safi" required>
+              </label>
+              <label class="form-field form-field--full">
+                <span>Décrivez votre demande</span>
+                <textarea name="description" rows="3" maxlength="600" placeholder="Expliquez ce dont vous avez besoin…" required></textarea>
+              </label>
+            </div>
+            <p class="form-feedback" id="request-feedback" role="status" aria-live="polite"></p>
+            <button class="button" type="submit">Envoyer la demande de démonstration</button>
+          </form>
+
+          <div class="dashboard-list-heading">
+            <h3>Historique de mes demandes</h3>
+          </div>
+          <div class="dashboard-list" id="client-requests"></div>
+          <p class="dashboard-empty" id="client-empty">Vos demandes apparaîtront ici après leur création.</p>
+        </section>
+
+        <section class="dashboard-panel" id="professional-dashboard" hidden>
+          <div class="dashboard-section-heading">
+            <div>
+              <p class="eyebrow">Côté professionnel</p>
+              <h2>Gérez votre activité</h2>
+            </div>
+            <span class="count-badge" id="professional-request-count">0 demande</span>
+          </div>
+
+          <div class="dashboard-columns">
+            <section class="dashboard-subpanel" aria-labelledby="services-title">
+              <div class="dashboard-list-heading">
+                <div>
+                  <h3 id="services-title">Mes prestations</h3>
+                  <p>Gérez les services proposés sur votre profil de démonstration.</p>
+                </div>
+              </div>
+              <form class="dashboard-form dashboard-form--compact" id="service-form">
+                <input name="serviceId" type="hidden">
+                <label class="form-field">
+                  <span>Nom de la prestation</span>
+                  <input name="name" type="text" maxlength="100" placeholder="Ex. Dépannage plomberie" required>
+                </label>
+                <label class="form-field">
+                  <span>Description</span>
+                  <textarea name="description" rows="3" maxlength="500" placeholder="Détaillez cette prestation…" required></textarea>
+                </label>
+                <label class="form-field">
+                  <span>Tarif indicatif (DH)</span>
+                  <input name="price" type="text" maxlength="80" placeholder="Ex. À partir de 150 DH">
+                </label>
+                <p class="form-feedback" id="service-feedback" role="status" aria-live="polite"></p>
+                <div class="form-actions">
+                  <button class="button" type="submit" id="service-submit">Ajouter la prestation</button>
+                  <button class="button button--secondary" type="button" id="service-cancel" hidden>Annuler</button>
+                </div>
+              </form>
+              <div class="dashboard-list" id="professional-services"></div>
+              <p class="dashboard-empty" id="services-empty">Ajoutez votre première prestation avec le formulaire ci-dessus.</p>
+            </section>
+
+            <section class="dashboard-subpanel" aria-labelledby="requests-title">
+              <div class="dashboard-list-heading">
+                <div>
+                  <h3 id="requests-title">Demandes reçues</h3>
+                  <p>Les demandes correspondant à votre activité apparaissent ici.</p>
+                </div>
+              </div>
+              <div class="dashboard-list" id="professional-requests"></div>
+              <p class="dashboard-empty" id="professional-empty">Aucune demande pour le moment. Les nouvelles demandes de démonstration apparaîtront ici.</p>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="auth-footer">
+      <p>© <span data-current-year>2026</span> ProxiService · Fait avec soin à Safi.</p>
+    </footer>
+  </body>
+</html>
