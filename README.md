@@ -14,6 +14,11 @@ particuliers avec les professionnels locaux à Safi, au Maroc.
 ├── js/
 │   ├── auth.js
 │   └── main.js
+├── server/
+│   ├── src/
+│   ├── tests/
+│   ├── .env.example
+│   └── README.md
 ├── connexion.html
 ├── index.html
 ├── inscription.html
@@ -48,3 +53,11 @@ est également un exemple à remplacer avant la mise en ligne.
 - Cette démonstration ne doit pas servir pour des comptes ou des données réels.
   Une authentification côté serveur et une base de données sont nécessaires
   avant toute mise en production.
+
+## API backend (optionnelle)
+
+Le backend Express se trouve dans `server/`. Il propose un contrôle de santé
+et l'API du premier service IA, ProxiBot. Consultez `server/README.md` pour
+l'installation et la configuration. La clé `OPENAI_API_KEY` doit rester dans
+le fichier `.env` local du serveur ; elle ne doit jamais être intégrée au
+frontend ni commitée.
