@@ -81,22 +81,118 @@ test("POST /api/chat calls the Responses API and returns its text", async () => 
 });
 
 test("POST /api/chat masks upstream errors and returns a request identifier", async () => {
+  const secret = "sensitive provider details";
   const openaiClient = {
     responses: {
       async create() {
-        throw Object.assign(new Error("sensitive provider details"), { status: 401 });
+        throw Object.assign(new Error(secret), {
+          status: 401,
+          type: "authentication_error",
+          headers: { authorization: "Bearer secret-authorization-value" },
+        });
       },
     },
   };
 
-  const response = await request(createTestApp(openaiClient))
-    .post("/api/chat")
-    .send({ messages: validMessages })
-    .expect(502);
+  const originalError = console.error;
+  let diagnostic;
+  console.error = (entry) => {
+    diagnostic = entry;
+  };
+  let response;
+  try {
+    response = await request(createTestApp(openaiClient))
+      .post("/api/chat")
+      .send({ messages: validMessages })
+      .expect(502);
+  } finally {
+    console.error = originalError;
+  }
 
   assert.match(response.body.error.message, /AI service is temporarily unavailable/);
   assert.ok(response.body.requestId);
-  assert.equal(response.text.includes("sensitive provider details"), false);
+  assert.equal(response.text.includes(secret), false);
+  assert.deepEqual(JSON.parse(diagnostic), {
+    event: "ai_provider_request_failed",
+    requestId: response.body.requestId,
+    upstreamStatus: 401,
+    providerErrorType: "authentication_error",
+  });
+  assert.equal(diagnostic.includes(secret), false);
+  assert.equal(diagnostic.includes("authorization"), false);
+});
+
+test("POST /api/chat logs unknown provider metadata without exposing arbitrary fields", async () => {
+  const openaiClient = {
+    responses: {
+      async create() {
+        throw Object.assign(new Error("private error message"), {
+          status: "503",
+          type: "sk-private-api-key",
+          name: "private-sensitive-name",
+          headers: { authorization: "Bearer private-token" },
+        });
+      },
+    },
+  };
+
+  const originalError = console.error;
+  let diagnostic;
+  console.error = (entry) => {
+    diagnostic = entry;
+  };
+  let response;
+  try {
+    response = await request(createTestApp(openaiClient))
+      .post("/api/chat")
+      .send({ messages: validMessages })
+      .expect(502);
+  } finally {
+    console.error = originalError;
+  }
+
+  assert.deepEqual(JSON.parse(diagnostic), {
+    event: "ai_provider_request_failed",
+    requestId: response.body.requestId,
+    upstreamStatus: "unknown",
+    providerErrorType: "unknown",
+  });
+  assert.equal(diagnostic.includes("private error message"), false);
+  assert.equal(diagnostic.includes("sk-private-api-key"), false);
+  assert.equal(diagnostic.includes("private-sensitive-name"), false);
+  assert.equal(diagnostic.includes("authorization"), false);
+});
+
+test("POST /api/chat logs when the provider returns no response text", async () => {
+  const openaiClient = {
+    responses: {
+      async create() {
+        return { output_text: "   " };
+      },
+    },
+  };
+
+  const originalWarn = console.warn;
+  let diagnostic;
+  console.warn = (entry) => {
+    diagnostic = entry;
+  };
+  let response;
+  try {
+    response = await request(createTestApp(openaiClient))
+      .post("/api/chat")
+      .send({ messages: validMessages })
+      .expect(502);
+  } finally {
+    console.warn = originalWarn;
+  }
+
+  assert.deepEqual(JSON.parse(diagnostic), {
+    event: "ai_provider_empty_response",
+    requestId: response.body.requestId,
+    upstreamStatus: 200,
+    providerErrorType: "empty_output",
+  });
 });
 
 test("production configuration requires an OpenAI API key", () => {
